@@ -116,7 +116,12 @@ function renderLeaderboard(teams) {
     
     tbody.innerHTML = '';
     
-    teams.forEach((team, index) => {
+    if (teams.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: #888; padding: 25px; font-size: 15px;">No task submissions recorded yet. The hunt is on! 🚀</td></tr>`;
+        let timeEl = document.getElementById('update-time');
+        if (timeEl) timeEl.textContent = new Date().toLocaleTimeString();
+        return;
+    }
         const rank = index + 1;
         const row = document.createElement('tr');
         
