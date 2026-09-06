@@ -1,0 +1,162 @@
+// ==========================================
+// CONFIGURATION
+// ==========================================
+// The published CSV link of your Google Sheet responses
+const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8S9cCzPnrWOIEFwbs97BG_k602zTW8b572790RXSMtd7PZEtuvLSPmBENQIWPn28McGpDEnkin4Zc/pub?output=csv'; 
+
+// Points rules
+const POINTS_PER_TASK = 100;
+const MIN_POINTS_PER_TASK = 60; // Minimum points a team can get for a task
+const FINAL_TASK_BONUS = 10000;
+
+// The exact string that represents the final task in the form
+const FINAL_TASK_NAME = "Task 10"; 
+const REFRESH_INTERVAL = 10000; // 10 seconds
+
+// ==========================================
+// APP LOGIC
+// ==========================================
+
+function parseCSVData(csvText) {
+    Papa.parse(csvText, {
+        header: true,
+        skipEmptyLines: true,
+        complete: function(results) {
+            processData(results.data);
+        }
+    });
+}
+
+function processData(rows) {
+    // Expected headers: "Timestamp", "team name", "task name"
+    // Find the actual keys since Google Forms might capitalize them slightly differently
+    if (rows.length === 0) {
+        renderLeaderboard([]);
+        return;
+    }
+
+    const headers = Object.keys(rows[0]);
+    const timeCol = headers.find(h => h.toLowerCase().includes('timestamp')) || headers[0];
+    const teamCol = headers.find(h => h.toLowerCase().includes('team')) || headers[1];
+    const taskCol = headers.find(h => h.toLowerCase().includes('task')) || headers[2];
+
+    // 1. Organize submissions chronologically
+    rows.sort((a, b) => new Date(a[timeCol]) - new Date(b[timeCol]));
+
+    // 2. Track who solved what and when
+    // { "Task 1": ["NOVA", "Team 2"], "Task 2": ["NOVA"] }
+    let taskCompletions = {}; 
+    let teamPoints = {}; // { "NOVA": 100 }
+    let teamHasWon = {}; // { "NOVA": false }
+
+    rows.forEach(row => {
+        let team = row[teamCol]?.trim();
+        let task = row[taskCol]?.trim();
+        
+        if (!team || !task) return;
+
+        // Initialize team if not exists
+        if (typeof teamPoints[team] === 'undefined') {
+            teamPoints[team] = 0;
+            teamHasWon[team] = false;
+        }
+
+        // Initialize task array if not exists
+        if (!taskCompletions[task]) {
+            taskCompletions[task] = [];
+        }
+
+        // If this team hasn't already received points for this task
+        if (!taskCompletions[task].includes(team)) {
+            taskCompletions[task].push(team);
+            
+            // Their rank is how many people solved it before them + 1
+            let rank = taskCompletions[task].length; 
+            
+            if (task.toLowerCase() === FINAL_TASK_NAME.toLowerCase()) {
+                if (rank === 1) {
+                    teamPoints[team] += FINAL_TASK_BONUS;
+                    teamHasWon[team] = true;
+                } else {
+                    teamPoints[team] += Math.max(MIN_POINTS_PER_TASK, POINTS_PER_TASK - ((rank - 1) * 10));
+                }
+            } else {
+                teamPoints[team] += Math.max(MIN_POINTS_PER_TASK, POINTS_PER_TASK - ((rank - 1) * 10));
+            }
+        }
+    });
+
+    // 3. Format for rendering
+    let teamsList = Object.keys(teamPoints).map(teamName => {
+        // Generate avatar initials (first two letters)
+        let avatar = teamName.replace('Team ', 'T');
+        if (teamName.length > 2 && avatar === teamName) {
+             avatar = teamName.substring(0, 2).toUpperCase();
+        }
+
+        return {
+            name: teamName,
+            points: teamPoints[teamName],
+            avatar: avatar,
+            hasWon: teamHasWon[teamName]
+        };
+    });
+
+    // Sort teams: Highest points first.
+    teamsList.sort((a, b) => b.points - a.points);
+
+    renderLeaderboard(teamsList);
+}
+
+function renderLeaderboard(teams) {
+    const tbody = document.getElementById('leaderboard-body');
+    if (!tbody) return; // Fail gracefully if missing element
+    
+    tbody.innerHTML = '';
+    
+    teams.forEach((team, index) => {
+        const rank = index + 1;
+        const row = document.createElement('tr');
+        
+        if (rank <= 3 && !team.hasWon) {
+            row.classList.add('top-3');
+        }
+        
+        if (team.hasWon) {
+            row.classList.add('winner');
+        }
+
+        let displayRank = team.hasWon ? '👑' : rank;
+
+        row.innerHTML = `
+            <td class="rank">${displayRank}</td>
+            <td class="name">
+                <div class="avatar">${team.avatar}</div>
+                ${team.name}
+            </td>
+            <td class="points">${team.points}</td>
+        `;
+        tbody.appendChild(row);
+    });
+    
+    let timeEl = document.getElementById('update-time');
+    if (timeEl) timeEl.textContent = new Date().toLocaleTimeString();
+}
+
+function fetchData() {
+    fetch(`${GOOGLE_SHEET_CSV_URL}&_=${Date.now()}`)
+        .then(response => {
+            if (!response.ok) throw new Error("Network response was not ok");
+            return response.text();
+        })
+        .then(csvText => {
+            parseCSVData(csvText);
+        })
+        .catch(error => {
+            console.error('Error fetching Google Sheet:', error);
+        });
+}
+
+// Initial fetch
+fetchData();
+setInterval(fetchData, REFRESH_INTERVAL);

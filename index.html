@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Treasure Hunt Leaderboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- PapaParse for parsing CSV data from Google Sheets -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Treasure Hunt Leaderboard</h1>
+            <p class="subtitle">Top Teams - First to complete the final task wins!</p>
+        </header>
+        
+        <div class="leaderboard">
+            <table>
+                <thead>
+                    <tr>
+                        <th class="rank">Rank</th>
+                        <th class="name">Team Name</th>
+                        <th class="points">Points</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-body">
+                    <!-- Leaderboard data will be populated here dynamically -->
+                </tbody>
+            </table>
+        </div>
+        
+        <p class="last-updated">Last updated: <span id="update-time"></span></p>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
