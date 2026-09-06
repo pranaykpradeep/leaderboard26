@@ -30,8 +30,12 @@
             </table>
         </div>
         
-        <p class="last-updated">Last updated: <span id="update-time"></span></p>
-    </div>
+        <div class="footer-bar">
+            <p class="last-updated">Last updated: <span id="update-time"></span></p>
+            <button id="refresh-btn" class="refresh-button" onclick="triggerManualRefresh()" title="Refresh Leaderboard">
+                <span class="refresh-icon">🔄</span> Refresh
+            </button>
+        </div>
 
     <script src="script.js"></script>
 </body>

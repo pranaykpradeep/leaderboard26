@@ -52,8 +52,8 @@ function processData(rows) {
     let teamHasWon = {}; // { "NOVA": false }
 
     rows.forEach(row => {
-        let team = row[teamCol]?.trim();
-        let task = row[taskCol]?.trim();
+        let team = row[teamCol]?.toString().trim();
+        let task = row[taskCol]?.toString().trim();
         
         if (!team || !task) return;
 
@@ -122,6 +122,7 @@ function renderLeaderboard(teams) {
         if (timeEl) timeEl.textContent = new Date().toLocaleTimeString();
         return;
     }
+    teams.forEach((team, index) => {
         const rank = index + 1;
         const row = document.createElement('tr');
         
@@ -150,8 +151,24 @@ function renderLeaderboard(teams) {
     if (timeEl) timeEl.textContent = new Date().toLocaleTimeString();
 }
 
+function triggerManualRefresh() {
+    const btn = document.getElementById('refresh-btn');
+    if (btn) {
+        btn.classList.add('spinning');
+        btn.disabled = true;
+    }
+    fetchData().finally(() => {
+        if (btn) {
+            setTimeout(() => {
+                btn.classList.remove('spinning');
+                btn.disabled = false;
+            }, 600);
+        }
+    });
+}
+
 function fetchData() {
-    fetch(APPS_SCRIPT_URL)
+    return fetch(APPS_SCRIPT_URL)
         .then(response => {
             if (!response.ok) throw new Error("Apps Script response not ok: " + response.status);
             return response.json();
@@ -165,7 +182,7 @@ function fetchData() {
         })
         .catch(error => {
             console.warn('Apps Script fetch failed, falling back to published CSV:', error);
-            fetch(`${GOOGLE_SHEET_CSV_URL}&_=${Date.now()}`)
+            return fetch(`${GOOGLE_SHEET_CSV_URL}&_=${Date.now()}`)
                 .then(response => {
                     if (!response.ok) throw new Error("CSV response not ok");
                     return response.text();
@@ -178,6 +195,10 @@ function fetchData() {
                 });
         });
 }
+
+// Make functions globally available
+window.fetchData = fetchData;
+window.triggerManualRefresh = triggerManualRefresh;
 
 // Initial fetch
 fetchData();

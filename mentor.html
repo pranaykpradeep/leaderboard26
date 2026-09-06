@@ -91,6 +91,44 @@
             padding: 8px 15px;
             font-size: 14px;
         }
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .header-row h1 {
+            margin-bottom: 0;
+            text-align: left;
+            color: #1a2a6c;
+        }
+        .refresh-btn {
+            width: auto;
+            margin: 0;
+            background: #f8f9fa;
+            color: #1a2a6c;
+            border: 1px solid #ced4da;
+            padding: 7px 14px;
+            font-size: 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .refresh-btn:hover {
+            background: #e2e6ea;
+            border-color: #adb5bd;
+        }
+        .refresh-btn.spinning .refresh-icon {
+            display: inline-block;
+            animation: spin 0.6s linear infinite;
+        }
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
         #status-msg {
             text-align: center;
             margin-top: 15px;
@@ -105,7 +143,12 @@
 <body>
 
 <div class="container">
-    <h1>Mentor Portal</h1>
+    <div class="header-row">
+        <h1>Mentor Portal</h1>
+        <button id="refresh-btn" class="refresh-btn" onclick="triggerMentorRefresh()" title="Sync data">
+            <span class="refresh-icon">🔄</span> Refresh
+        </button>
+    </div>
     
     <div class="form-group">
         <label for="team-select">Select Your Team</label>
@@ -154,7 +197,7 @@
 
     // Fetch real-time data from Google Apps Script (with CSV fallback)
     function fetchState() {
-        fetch(APPS_SCRIPT_URL)
+        return fetch(APPS_SCRIPT_URL)
             .then(res => {
                 if (!res.ok) throw new Error("Apps Script status: " + res.status);
                 return res.json();
@@ -168,18 +211,38 @@
             })
             .catch(err => {
                 // Fallback to published CSV
-                Papa.parse(`${GOOGLE_SHEET_CSV_URL}&_=${Date.now()}`, {
-                    download: true,
-                    header: true,
-                    skipEmptyLines: true,
-                    complete: function(results) {
-                        processData(results.data);
-                    },
-                    error: function() {
-                        showMessage("Error connecting to data. Please refresh.", true);
-                    }
+                return new Promise((resolve) => {
+                    Papa.parse(`${GOOGLE_SHEET_CSV_URL}&_=${Date.now()}`, {
+                        download: true,
+                        header: true,
+                        skipEmptyLines: true,
+                        complete: function(results) {
+                            processData(results.data);
+                            resolve();
+                        },
+                        error: function() {
+                            showMessage("Error connecting to data. Please refresh.", true);
+                            resolve();
+                        }
+                    });
                 });
             });
+    }
+
+    function triggerMentorRefresh() {
+        const btn = document.getElementById('refresh-btn');
+        if (btn) {
+            btn.classList.add('spinning');
+            btn.disabled = true;
+        }
+        fetchState().finally(() => {
+            if (btn) {
+                setTimeout(() => {
+                    btn.classList.remove('spinning');
+                    btn.disabled = false;
+                }, 500);
+            }
+        });
     }
 
     function processData(rows) {
