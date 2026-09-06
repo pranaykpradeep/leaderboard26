@@ -1,7 +1,9 @@
 // ==========================================
 // CONFIGURATION
 // ==========================================
-// The published CSV link of your Google Sheet responses
+// Real-time Google Apps Script Web App URL
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxOiUteM5VmZCXIQVsvsgRvTXIiTf82WAuA3LDyPuRgK-_w5qLCLmVxT4FPUbUyF9gScA/exec';
+// Fallback CSV URL (in case Apps Script is inaccessible)
 const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8S9cCzPnrWOIEFwbs97BG_k602zTW8b572790RXSMtd7PZEtuvLSPmBENQIWPn28McGpDEnkin4Zc/pub?output=csv'; 
 
 // Points rules
@@ -11,7 +13,7 @@ const FINAL_TASK_BONUS = 10000;
 
 // The exact string that represents the final task in the form
 const FINAL_TASK_NAME = "Task 10"; 
-const REFRESH_INTERVAL = 10000; // 10 seconds
+const REFRESH_INTERVAL = 3000; // 3 seconds for instant real-time updates
 
 // ==========================================
 // APP LOGIC
@@ -144,16 +146,31 @@ function renderLeaderboard(teams) {
 }
 
 function fetchData() {
-    fetch(`${GOOGLE_SHEET_CSV_URL}&_=${Date.now()}`)
+    fetch(APPS_SCRIPT_URL)
         .then(response => {
-            if (!response.ok) throw new Error("Network response was not ok");
-            return response.text();
+            if (!response.ok) throw new Error("Apps Script response not ok: " + response.status);
+            return response.json();
         })
-        .then(csvText => {
-            parseCSVData(csvText);
+        .then(rows => {
+            if (Array.isArray(rows)) {
+                processData(rows);
+            } else {
+                throw new Error("Invalid response format from Apps Script");
+            }
         })
         .catch(error => {
-            console.error('Error fetching Google Sheet:', error);
+            console.warn('Apps Script fetch failed, falling back to published CSV:', error);
+            fetch(`${GOOGLE_SHEET_CSV_URL}&_=${Date.now()}`)
+                .then(response => {
+                    if (!response.ok) throw new Error("CSV response not ok");
+                    return response.text();
+                })
+                .then(csvText => {
+                    parseCSVData(csvText);
+                })
+                .catch(csvError => {
+                    console.error('All fetch sources failed:', csvError);
+                });
         });
 }
 

@@ -75,6 +75,16 @@
             background: #d4edda;
             color: #155724;
         }
+        .task-item.locked {
+            opacity: 0.65;
+            background: #e9ecef;
+            border-left: 4px solid #ced4da;
+        }
+        .locked-badge {
+            color: #6c757d;
+            font-size: 13px;
+            font-weight: 500;
+        }
         .task-item button {
             width: auto;
             margin: 0;
@@ -132,6 +142,7 @@
     // ==========================================
     // CONFIGURATION
     // ==========================================
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxOiUteM5VmZCXIQVsvsgRvTXIiTf82WAuA3LDyPuRgK-_w5qLCLmVxT4FPUbUyF9gScA/exec';
     const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8S9cCzPnrWOIEFwbs97BG_k602zTW8b572790RXSMtd7PZEtuvLSPmBENQIWPn28McGpDEnkin4Zc/pub?output=csv';
     const GOOGLE_FORM_ACTION_URL = 'https://docs.google.com/forms/d/e/1FAIpQLScZQf4uIOh_uJJeH9T7e-i5-rEdlynEJ4DlkxrWrg4iSCXAsQ/formResponse';
     
@@ -141,23 +152,42 @@
 
     let completedTasksPerTeam = {}; // { "NOVA": ["Task 1", "Task 2"] }
 
-    // Fetch the CSV to see what tasks are already done
+    // Fetch real-time data from Google Apps Script (with CSV fallback)
     function fetchState() {
-        Papa.parse(`${GOOGLE_SHEET_CSV_URL}&_=${Date.now()}`, {
-            download: true,
-            header: true,
-            skipEmptyLines: true,
-            complete: function(results) {
-                processData(results.data);
-            },
-            error: function() {
-                showMessage("Error connecting to data. Please refresh.", true);
-            }
-        });
+        fetch(APPS_SCRIPT_URL)
+            .then(res => {
+                if (!res.ok) throw new Error("Apps Script status: " + res.status);
+                return res.json();
+            })
+            .then(rows => {
+                if (Array.isArray(rows)) {
+                    processData(rows);
+                } else {
+                    throw new Error("Invalid format from Apps Script");
+                }
+            })
+            .catch(err => {
+                // Fallback to published CSV
+                Papa.parse(`${GOOGLE_SHEET_CSV_URL}&_=${Date.now()}`, {
+                    download: true,
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: function(results) {
+                        processData(results.data);
+                    },
+                    error: function() {
+                        showMessage("Error connecting to data. Please refresh.", true);
+                    }
+                });
+            });
     }
 
     function processData(rows) {
-        if (rows.length === 0) return;
+        if (!rows || rows.length === 0) {
+            completedTasksPerTeam = {};
+            loadTeamData();
+            return;
+        }
 
         const headers = Object.keys(rows[0]);
         const teamCol = headers.find(h => h.toLowerCase().includes('team')) || headers[1];
@@ -165,8 +195,8 @@
 
         completedTasksPerTeam = {};
         rows.forEach(row => {
-            let team = row[teamCol]?.trim();
-            let task = row[taskCol]?.trim();
+            let team = row[teamCol]?.toString().trim();
+            let task = row[taskCol]?.toString().trim();
             if (!team || !task) return;
 
             if (!completedTasksPerTeam[team]) {
@@ -196,28 +226,55 @@
         container.style.display = 'block';
         taskList.innerHTML = '';
 
-        // Render 10 tasks
+        // Render 10 tasks in strict sequential order
         for (let i = 1; i <= 10; i++) {
             let taskId = `Task ${i}`;
             let isDone = teamCompleted.includes(taskId);
+            
+            // Check if previous task is completed
+            let isPreviousDone = (i === 1) || teamCompleted.includes(`Task ${i - 1}`);
 
             let div = document.createElement('div');
-            div.className = `task-item ${isDone ? 'completed' : ''}`;
             
-            let btnHtml = isDone 
-                ? `<span>✅ Done</span>` 
-                : `<button onclick="submitTask('${teamName}', '${taskId}', this)">Complete</button>`;
+            let badgeOrButton = '';
+            if (isDone) {
+                div.className = 'task-item completed';
+                badgeOrButton = `<span>✅ Done</span>`;
+            } else if (isPreviousDone) {
+                // This is the next unlocked task available to complete
+                div.className = 'task-item active';
+                badgeOrButton = `<button onclick="submitTask('${teamName}', '${taskId}', this)">Complete ${taskId}</button>`;
+            } else {
+                // Locked until previous task is done
+                div.className = 'task-item locked';
+                badgeOrButton = `<span class="locked-badge">🔒 Locked (Complete Task ${i - 1} first)</span>`;
+            }
 
             div.innerHTML = `
-                <span>${taskId}</span>
-                ${btnHtml}
+                <span><strong>${taskId}</strong></span>
+                ${badgeOrButton}
             `;
             taskList.appendChild(div);
         }
     }
 
     async function submitTask(teamName, taskId, btnElement) {
-        if (!confirm(`Are you sure you want to submit ${taskId} for ${teamName}? This will lock in your time!`)) return;
+        // Enforce sequential check in submission logic
+        const match = taskId.match(/Task\s*(\d+)/i);
+        const taskNum = match ? parseInt(match[1]) : 1;
+        const teamCompleted = completedTasksPerTeam[teamName] || [];
+
+        if (teamCompleted.includes(taskId)) {
+            alert(`⚠️ ${taskId} has already been recorded!`);
+            return;
+        }
+
+        if (taskNum > 1 && !teamCompleted.includes(`Task ${taskNum - 1}`)) {
+            alert(`⛔ Task ${taskNum - 1} must be completed before submitting ${taskId}!`);
+            return;
+        }
+
+        if (!confirm(`Are you sure you want to submit ${taskId} for ${teamName}? This will record the exact timestamp!`)) return;
 
         // Disable button immediately to prevent double clicking
         if (btnElement) {
@@ -238,7 +295,6 @@
                 body: formData
             });
 
-            // Since no-cors hides the actual response status, we assume success if no JS error is thrown
             showMessage(`✅ ${taskId} submitted successfully!`);
             
             // Optimistically update the UI so they don't double click
@@ -248,11 +304,15 @@
             completedTasksPerTeam[teamName].push(taskId);
             loadTeamData();
 
-            // Refetch true state slightly later to sync
-            setTimeout(fetchState, 3000);
+            // Refetch true state quickly to sync
+            setTimeout(fetchState, 1500);
 
         } catch (err) {
             showMessage("Failed to submit. Check internet connection.", true);
+            if (btnElement) {
+                btnElement.disabled = false;
+                btnElement.innerText = `Complete ${taskId}`;
+            }
         }
     }
 
@@ -265,8 +325,8 @@
 
     // Load data on start
     fetchState();
-    // Poll every 10 seconds to keep UI synced
-    setInterval(fetchState, 10000);
+    // Poll every 3 seconds for instant real-time sync
+    setInterval(fetchState, 3000);
 </script>
 
 </body>
