@@ -89,8 +89,10 @@ function processData(rows) {
         });
     }
 
-    // 3. Format for rendering
-    let teamsList = validTeams.map(teamName => {
+    // 3. Format for rendering - Only display teams that have started (completed at least one task / points > 0)
+    let activeTeams = validTeams.filter(teamName => (teamPoints[teamName] || 0) > 0);
+
+    let teamsList = activeTeams.map(teamName => {
         let avatar = teamName.replace('Team ', 'T');
         return {
             name: teamName,
@@ -113,7 +115,7 @@ function renderLeaderboard(teams) {
     tbody.innerHTML = '';
     
     if (teams.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: #888; padding: 25px; font-size: 15px;">No task submissions recorded yet. The hunt is on! 🚀</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: #888; padding: 25px; font-size: 15px;">No teams have completed Task 1 yet. The hunt is on! 🚀</td></tr>`;
         let timeEl = document.getElementById('update-time');
         if (timeEl) timeEl.textContent = new Date().toLocaleTimeString();
         return;
