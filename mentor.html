@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,6 +14,7 @@
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+
         body {
             background: #f4f7f6;
             color: #333;
@@ -20,34 +22,41 @@
             display: flex;
             justify-content: center;
         }
+
         .container {
             background: white;
             padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 500px;
         }
+
         h1 {
             text-align: center;
             margin-bottom: 20px;
             color: #1a2a6c;
         }
+
         .form-group {
             margin-bottom: 20px;
         }
+
         label {
             display: block;
             margin-bottom: 8px;
             font-weight: bold;
         }
-        select, button {
+
+        select,
+        button {
             width: 100%;
             padding: 12px;
             border-radius: 5px;
             border: 1px solid #ccc;
             font-size: 16px;
         }
+
         button {
             background: #1a2a6c;
             color: white;
@@ -56,12 +65,15 @@
             font-weight: bold;
             margin-top: 10px;
         }
+
         button:hover {
             background: #b21f1f;
         }
+
         .task-list {
             margin-top: 20px;
         }
+
         .task-item {
             display: flex;
             justify-content: space-between;
@@ -71,32 +83,38 @@
             margin-bottom: 10px;
             border-radius: 5px;
         }
+
         .task-item.completed {
             background: #d4edda;
             color: #155724;
         }
+
         .task-item.locked {
             opacity: 0.65;
             background: #e9ecef;
             border-left: 4px solid #ced4da;
         }
+
         .locked-badge {
             color: #6c757d;
             font-size: 13px;
             font-weight: 500;
         }
+
         .task-item button {
             width: auto;
             margin: 0;
             padding: 8px 15px;
             font-size: 14px;
         }
+
         .task-info {
             display: flex;
             flex-direction: column;
             gap: 2px;
             text-align: left;
         }
+
         .task-num {
             font-size: 11px;
             font-weight: 700;
@@ -104,29 +122,35 @@
             color: #666;
             letter-spacing: 0.5px;
         }
+
         .task-name-text {
             font-size: 14.5px;
             color: #222;
         }
+
         .task-item.completed .task-num,
         .task-item.completed .task-name-text {
             color: #155724;
         }
+
         .task-item.locked .task-num,
         .task-item.locked .task-name-text {
             color: #777;
         }
+
         .header-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
         }
+
         .header-row h1 {
             margin-bottom: 0;
             text-align: left;
             color: #1a2a6c;
         }
+
         .refresh-btn {
             width: auto;
             margin: 0;
@@ -143,407 +167,423 @@
             font-weight: 600;
             transition: all 0.2s;
         }
+
         .refresh-btn:hover {
             background: #e2e6ea;
             border-color: #adb5bd;
         }
+
         .refresh-btn.spinning .refresh-icon {
             display: inline-block;
             animation: spin 0.6s linear infinite;
         }
+
         @keyframes spin {
-            100% { transform: rotate(360deg); }
+            100% {
+                transform: rotate(360deg);
+            }
         }
+
         #status-msg {
             text-align: center;
             margin-top: 15px;
             font-weight: bold;
             color: green;
         }
+
         .error {
             color: red !important;
         }
+
         @media (max-width: 480px) {
             body {
                 padding: 10px;
             }
+
             .container {
                 padding: 20px 14px;
             }
+
             .header-row h1 {
                 font-size: 1.5rem;
             }
+
             .task-item {
                 padding: 8px 10px;
                 font-size: 14px;
             }
+
             .task-item button {
                 padding: 6px 10px;
                 font-size: 13px;
             }
+
             .locked-badge {
                 font-size: 11.5px;
             }
         }
     </style>
 </head>
+
 <body>
 
-<div class="container">
-    <div class="header-row">
-        <h1>Mentor Portal</h1>
-        <button id="refresh-btn" class="refresh-btn" onclick="triggerMentorRefresh()" title="Sync data">
-            <span class="refresh-icon">🔄</span> Refresh
-        </button>
+    <div class="container">
+        <div class="header-row">
+            <h1>Mentor Portal</h1>
+            <button id="refresh-btn" class="refresh-btn" onclick="triggerMentorRefresh()" title="Sync data">
+                <span class="refresh-icon">🔄</span> Refresh
+            </button>
+        </div>
+
+        <div class="form-group">
+            <label for="team-select">Select Your Team</label>
+            <select id="team-select" onchange="loadTeamData()">
+                <option value="">-- Choose Team --</option>
+                <option value="Team 1">Team 1 - Quisito</option>
+                <option value="Team 2">Team 2 - Indiana Jonesnte piller</option>
+                <option value="Team 3">Team 3 - Secret Seekers</option>
+                <option value="Team 4">Team 4 - CID Moosas</option>
+                <option value="Team 5">Team 5 - DRASHTA</option>
+                <option value="Team 6">Team 6 - Operation Treasure</option>
+                <option value="Team 7">Team 7 - Kryptos</option>
+                <option value="Team 8">Team 8 - Cryptic squad</option>
+                <option value="Team 9">Team 9 - Squad Zero</option>
+                <option value="Team 10">Team 10 - Pirates Of Cheruthoni</option>
+                <option value="Team 11">Team 11 - Cipher Squad</option>
+                <option value="Team 12">Team 12 - Renegades</option>
+                <option value="Team 13">Team 13 - Relic Hunters</option>
+                <option value="Team 14">Team 14 - Mungal Vidhagthar</option>
+                <option value="Team 15">Team 15 - Treasure Warriors</option>
+                <option value="Team 16">Team 16 - Celestial dragons</option>
+                <option value="Team 17">Team 17 - Strawhats</option>
+                <option value="Team 18">Team 18 - Uncharted 😎</option>
+            </select>
+        </div>
+
+        <div id="status-msg"></div>
+
+        <div id="tasks-container" class="task-list" style="display: none;">
+            <h3>Tasks (8 Total)</h3>
+            <p style="margin-bottom: 15px; font-size: 14px; color: #666;">Click "Complete" when your team finishes a
+                task. The system will record the exact time securely to the master sheet.</p>
+            <div id="task-list"></div>
+        </div>
     </div>
-    
-    <div class="form-group">
-        <label for="team-select">Select Your Team</label>
-        <select id="team-select" onchange="loadTeamData()">
-            <option value="">-- Choose Team --</option>
-            <option value="Team 1">Team 1 - Quisito</option>
-            <option value="Team 2">Team 2 - Indiana Jonesnte piller</option>
-            <option value="Team 3">Team 3 - Secret Seekers</option>
-            <option value="Team 4">Team 4 - CID Moosas</option>
-            <option value="Team 5">Team 5 - DRASHTA</option>
-            <option value="Team 6">Team 6 - Operation Treasure</option>
-            <option value="Team 7">Team 7 - Kryptos</option>
-            <option value="Team 8">Team 8 - Cryptic squad</option>
-            <option value="Team 9">Team 9 - Squad Zero</option>
-            <option value="Team 10">Team 10 - Pirates Of Cheruthoni</option>
-            <option value="Team 11">Team 11 - Cipher Squad</option>
-            <option value="Team 12">Team 12 - Renegades</option>
-            <option value="Team 13">Team 13 - Relic Hunters</option>
-            <option value="Team 14">Team 14 - Mungal Vidhagthar</option>
-            <option value="Team 15">Team 15 - Treasure Warriors</option>
-            <option value="Team 16">Team 16 - Celestial dragons</option>
-            <option value="Team 17">Team 17 - Strawhats</option>
-            <option value="Team 18">Team 18 - Uncharted 😎</option>
-        </select>
-    </div>
 
-    <div id="status-msg"></div>
+    <script>
+        // ==========================================
+        // CONFIGURATION
+        // ==========================================
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxOiUteM5VmZCXIQVsvsgRvTXIiTf82WAuA3LDyPuRgK-_w5qLCLmVxT4FPUbUyF9gScA/exec';
+        const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8S9cCzPnrWOIEFwbs97BG_k602zTW8b572790RXSMtd7PZEtuvLSPmBENQIWPn28McGpDEnkin4Zc/pub?output=csv';
+        const GOOGLE_FORM_ACTION_URL = 'https://docs.google.com/forms/d/e/1FAIpQLScZQf4uIOh_uJJeH9T7e-i5-rEdlynEJ4DlkxrWrg4iSCXAsQ/formResponse';
 
-    <div id="tasks-container" class="task-list" style="display: none;">
-        <h3>Tasks (8 Total)</h3>
-        <p style="margin-bottom: 15px; font-size: 14px; color: #666;">Click "Complete" when your team finishes a task. The system will record the exact time securely to the master sheet.</p>
-        <div id="task-list"></div>
-    </div>
-</div>
+        // Entry IDs from the Google Form
+        const TEAM_ENTRY_ID = 'entry.2016818712';
+        const TASK_ENTRY_ID = 'entry.320462121';
 
-<script>
-    // ==========================================
-    // CONFIGURATION
-    // ==========================================
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxOiUteM5VmZCXIQVsvsgRvTXIiTf82WAuA3LDyPuRgK-_w5qLCLmVxT4FPUbUyF9gScA/exec';
-    const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8S9cCzPnrWOIEFwbs97BG_k602zTW8b572790RXSMtd7PZEtuvLSPmBENQIWPn28McGpDEnkin4Zc/pub?output=csv';
-    const GOOGLE_FORM_ACTION_URL = 'https://docs.google.com/forms/d/e/1FAIpQLScZQf4uIOh_uJJeH9T7e-i5-rEdlynEJ4DlkxrWrg4iSCXAsQ/formResponse';
-    
-    // Entry IDs from the Google Form
-    const TEAM_ENTRY_ID = 'entry.2016818712';
-    const TASK_ENTRY_ID = 'entry.320462121';
+        // Master Admin Password required to submit the final task (Task 8)
+        const FINAL_TASK_PASSWORD = "FINALPASS";
 
-    // Master Admin Password required to submit the final task (Task 8)
-    const FINAL_TASK_PASSWORD = "1234"; 
+        // Team Mapping (Team ID -> Unique Name)
+        const TEAM_NAMES = {
+            "Team 1": "Quisito",
+            "Team 2": "Indiana Jonesnte piller",
+            "Team 3": "Secret Seekers",
+            "Team 4": "CID Moosas",
+            "Team 5": "DRASHTA",
+            "Team 6": "Operation Treasure",
+            "Team 7": "Kryptos",
+            "Team 8": "Cryptic squad",
+            "Team 9": "Squad Zero",
+            "Team 10": "Pirates Of Cheruthoni",
+            "Team 11": "Cipher Squad",
+            "Team 12": "Renegades",
+            "Team 13": "Relic Hunters",
+            "Team 14": "Mungal Vidhagthar",
+            "Team 15": "Treasure Warriors",
+            "Team 16": "Celestial dragons",
+            "Team 17": "Strawhats",
+            "Team 18": "Uncharted 😎"
+        };
 
-    // Team Mapping (Team ID -> Unique Name)
-    const TEAM_NAMES = {
-        "Team 1": "Quisito",
-        "Team 2": "Indiana Jonesnte piller",
-        "Team 3": "Secret Seekers",
-        "Team 4": "CID Moosas",
-        "Team 5": "DRASHTA",
-        "Team 6": "Operation Treasure",
-        "Team 7": "Kryptos",
-        "Team 8": "Cryptic squad",
-        "Team 9": "Squad Zero",
-        "Team 10": "Pirates Of Cheruthoni",
-        "Team 11": "Cipher Squad",
-        "Team 12": "Renegades",
-        "Team 13": "Relic Hunters",
-        "Team 14": "Mungal Vidhagthar",
-        "Team 15": "Treasure Warriors",
-        "Team 16": "Celestial dragons",
-        "Team 17": "Strawhats",
-        "Team 18": "Uncharted 😎"
-    };
+        function resolveTeamId(rawTeam) {
+            if (!rawTeam) return null;
+            let clean = rawTeam.trim().toLowerCase();
 
-    function resolveTeamId(rawTeam) {
-        if (!rawTeam) return null;
-        let clean = rawTeam.trim().toLowerCase();
-
-        for (let id of Object.keys(TEAM_NAMES)) {
-            if (id.toLowerCase() === clean) return id;
+            for (let id of Object.keys(TEAM_NAMES)) {
+                if (id.toLowerCase() === clean) return id;
+            }
+            for (let [id, name] of Object.entries(TEAM_NAMES)) {
+                if (name.toLowerCase() === clean) return id;
+            }
+            for (let id of Object.keys(TEAM_NAMES)) {
+                if (clean.includes(id.toLowerCase())) return id;
+            }
+            for (let [id, name] of Object.entries(TEAM_NAMES)) {
+                if (name !== id && clean.includes(name.toLowerCase())) return id;
+            }
+            return null;
         }
-        for (let [id, name] of Object.entries(TEAM_NAMES)) {
-            if (name.toLowerCase() === clean) return id;
-        }
-        for (let id of Object.keys(TEAM_NAMES)) {
-            if (clean.includes(id.toLowerCase())) return id;
-        }
-        for (let [id, name] of Object.entries(TEAM_NAMES)) {
-            if (name !== id && clean.includes(name.toLowerCase())) return id;
-        }
-        return null;
-    }
 
-    let completedTasksPerTeam = {}; // { "Team 1": ["Task 1", "Task 2"] }
+        let completedTasksPerTeam = {}; // { "Team 1": ["Task 1", "Task 2"] }
 
-    // Fetch real-time data from Google Apps Script (with CSV fallback)
-    function fetchState() {
-        return fetch(APPS_SCRIPT_URL)
-            .then(res => {
-                if (!res.ok) throw new Error("Apps Script status: " + res.status);
-                return res.json();
-            })
-            .then(rows => {
-                if (Array.isArray(rows)) {
-                    processData(rows);
-                } else {
-                    throw new Error("Invalid format from Apps Script");
-                }
-            })
-            .catch(err => {
-                // Fallback to published CSV
-                return new Promise((resolve) => {
-                    Papa.parse(`${GOOGLE_SHEET_CSV_URL}&_=${Date.now()}`, {
-                        download: true,
-                        header: true,
-                        skipEmptyLines: true,
-                        complete: function(results) {
-                            processData(results.data);
-                            resolve();
-                        },
-                        error: function() {
-                            showMessage("Error connecting to data. Please refresh.", true);
-                            resolve();
-                        }
+        // Fetch real-time data from Google Apps Script (with CSV fallback)
+        function fetchState() {
+            return fetch(APPS_SCRIPT_URL)
+                .then(res => {
+                    if (!res.ok) throw new Error("Apps Script status: " + res.status);
+                    return res.json();
+                })
+                .then(rows => {
+                    if (Array.isArray(rows)) {
+                        processData(rows);
+                    } else {
+                        throw new Error("Invalid format from Apps Script");
+                    }
+                })
+                .catch(err => {
+                    // Fallback to published CSV
+                    return new Promise((resolve) => {
+                        Papa.parse(`${GOOGLE_SHEET_CSV_URL}&_=${Date.now()}`, {
+                            download: true,
+                            header: true,
+                            skipEmptyLines: true,
+                            complete: function (results) {
+                                processData(results.data);
+                                resolve();
+                            },
+                            error: function () {
+                                showMessage("Error connecting to data. Please refresh.", true);
+                                resolve();
+                            }
+                        });
                     });
                 });
-            });
-    }
-
-    function triggerMentorRefresh() {
-        const btn = document.getElementById('refresh-btn');
-        if (btn) {
-            btn.classList.add('spinning');
-            btn.disabled = true;
         }
-        fetchState().finally(() => {
+
+        function triggerMentorRefresh() {
+            const btn = document.getElementById('refresh-btn');
             if (btn) {
-                setTimeout(() => {
-                    btn.classList.remove('spinning');
-                    btn.disabled = false;
-                }, 500);
+                btn.classList.add('spinning');
+                btn.disabled = true;
             }
-        });
-    }
-
-    // Task Titles Mapping for Mentor Portal
-    const TASK_TITLES = {
-        1: "reached Website",
-        2: "reached Puzzle",
-        3: "reached Morse code",
-        4: "reached Tele bot",
-        5: "reached Library of babel",
-        6: "reached Spectrogram",
-        7: "reached Credential insta handle",
-        8: "reached Telegram bot"
-    };
-
-    function resolveTaskId(rawTask) {
-        if (!rawTask) return null;
-        let clean = rawTask.trim().toLowerCase();
-
-        for (let i = 1; i <= 8; i++) {
-            if (clean === `task ${i}` || clean.startsWith(`task ${i} `) || clean.startsWith(`task ${i}-`) || clean.startsWith(`task ${i}:`)) {
-                return `Task ${i}`;
-            }
+            fetchState().finally(() => {
+                if (btn) {
+                    setTimeout(() => {
+                        btn.classList.remove('spinning');
+                        btn.disabled = false;
+                    }, 500);
+                }
+            });
         }
-        for (let [num, title] of Object.entries(TASK_TITLES)) {
-            if (clean.includes(title.toLowerCase()) || title.toLowerCase().includes(clean)) {
-                return `Task ${num}`;
-            }
-        }
-        return rawTask;
-    }
 
-    function processData(rows) {
-        if (!rows || rows.length === 0) {
+        // Task Titles Mapping for Mentor Portal
+        const TASK_TITLES = {
+            1: "reached Website",
+            2: "reached Puzzle",
+            3: "reached Morse code",
+            4: "reached Tele bot",
+            5: "reached Library of babel",
+            6: "reached Spectrogram",
+            7: "reached Credential insta handle",
+            8: "reached Telegram bot"
+        };
+
+        function resolveTaskId(rawTask) {
+            if (!rawTask) return null;
+            let clean = rawTask.trim().toLowerCase();
+
+            for (let i = 1; i <= 8; i++) {
+                if (clean === `task ${i}` || clean.startsWith(`task ${i} `) || clean.startsWith(`task ${i}-`) || clean.startsWith(`task ${i}:`)) {
+                    return `Task ${i}`;
+                }
+            }
+            for (let [num, title] of Object.entries(TASK_TITLES)) {
+                if (clean.includes(title.toLowerCase()) || title.toLowerCase().includes(clean)) {
+                    return `Task ${num}`;
+                }
+            }
+            return rawTask;
+        }
+
+        function processData(rows) {
+            if (!rows || rows.length === 0) {
+                completedTasksPerTeam = {};
+                loadTeamData();
+                return;
+            }
+
+            const headers = Object.keys(rows[0]);
+            const teamCol = headers.find(h => h.toLowerCase().includes('team')) || headers[1];
+            const taskCol = headers.find(h => h.toLowerCase().includes('task')) || headers[2];
+
             completedTasksPerTeam = {};
+            rows.forEach(row => {
+                let rawTeam = row[teamCol]?.toString().trim();
+                let rawTask = row[taskCol]?.toString().trim();
+                if (!rawTeam || !rawTask) return;
+
+                let teamId = resolveTeamId(rawTeam);
+                let taskId = resolveTaskId(rawTask);
+                if (!teamId || !taskId) return;
+
+                if (!completedTasksPerTeam[teamId]) {
+                    completedTasksPerTeam[teamId] = [];
+                }
+                if (!completedTasksPerTeam[teamId].includes(taskId)) {
+                    completedTasksPerTeam[teamId].push(taskId);
+                }
+            });
+
+            // Refresh UI if a team is already selected
             loadTeamData();
-            return;
         }
 
-        const headers = Object.keys(rows[0]);
-        const teamCol = headers.find(h => h.toLowerCase().includes('team')) || headers[1];
-        const taskCol = headers.find(h => h.toLowerCase().includes('task')) || headers[2];
+        function loadTeamData() {
+            const teamName = document.getElementById('team-select').value;
+            const container = document.getElementById('tasks-container');
+            const taskList = document.getElementById('task-list');
 
-        completedTasksPerTeam = {};
-        rows.forEach(row => {
-            let rawTeam = row[teamCol]?.toString().trim();
-            let rawTask = row[taskCol]?.toString().trim();
-            if (!rawTeam || !rawTask) return;
-
-            let teamId = resolveTeamId(rawTeam);
-            let taskId = resolveTaskId(rawTask);
-            if (!teamId || !taskId) return;
-
-            if (!completedTasksPerTeam[teamId]) {
-                completedTasksPerTeam[teamId] = [];
-            }
-            if (!completedTasksPerTeam[teamId].includes(taskId)) {
-                completedTasksPerTeam[teamId].push(taskId);
-            }
-        });
-
-        // Refresh UI if a team is already selected
-        loadTeamData();
-    }
-
-    function loadTeamData() {
-        const teamName = document.getElementById('team-select').value;
-        const container = document.getElementById('tasks-container');
-        const taskList = document.getElementById('task-list');
-        
-        if (!teamName) {
-            container.style.display = 'none';
-            return;
-        }
-
-        const teamCompleted = completedTasksPerTeam[teamName] || [];
-
-        container.style.display = 'block';
-        taskList.innerHTML = '';
-
-        // Render 8 tasks with custom descriptive names in strict sequential order
-        for (let i = 1; i <= 8; i++) {
-            let taskId = `Task ${i}`;
-            let taskTitle = TASK_TITLES[i] || taskId;
-            let isDone = teamCompleted.includes(taskId);
-            
-            // Check if previous task is completed
-            let isPreviousDone = (i === 1) || teamCompleted.includes(`Task ${i - 1}`);
-
-            let div = document.createElement('div');
-            
-            let badgeOrButton = '';
-            if (isDone) {
-                div.className = 'task-item completed';
-                badgeOrButton = `<span>✅ Done</span>`;
-            } else if (isPreviousDone) {
-                // This is the next unlocked task available to complete
-                div.className = 'task-item active';
-                let btnLabel = (i === 8) ? `🔐 Complete (Admin Locked)` : `Complete`;
-                badgeOrButton = `<button onclick="submitTask('${teamName}', '${taskId}', this)">${btnLabel}</button>`;
-            } else {
-                // Locked until previous task is done
-                div.className = 'task-item locked';
-                badgeOrButton = `<span class="locked-badge">🔒 Locked (Complete Task ${i - 1} first)</span>`;
+            if (!teamName) {
+                container.style.display = 'none';
+                return;
             }
 
-            div.innerHTML = `
+            const teamCompleted = completedTasksPerTeam[teamName] || [];
+
+            container.style.display = 'block';
+            taskList.innerHTML = '';
+
+            // Render 8 tasks with custom descriptive names in strict sequential order
+            for (let i = 1; i <= 8; i++) {
+                let taskId = `Task ${i}`;
+                let taskTitle = TASK_TITLES[i] || taskId;
+                let isDone = teamCompleted.includes(taskId);
+
+                // Check if previous task is completed
+                let isPreviousDone = (i === 1) || teamCompleted.includes(`Task ${i - 1}`);
+
+                let div = document.createElement('div');
+
+                let badgeOrButton = '';
+                if (isDone) {
+                    div.className = 'task-item completed';
+                    badgeOrButton = `<span>✅ Done</span>`;
+                } else if (isPreviousDone) {
+                    // This is the next unlocked task available to complete
+                    div.className = 'task-item active';
+                    let btnLabel = (i === 8) ? `🔐 Complete (Admin Locked)` : `Complete`;
+                    badgeOrButton = `<button onclick="submitTask('${teamName}', '${taskId}', this)">${btnLabel}</button>`;
+                } else {
+                    // Locked until previous task is done
+                    div.className = 'task-item locked';
+                    badgeOrButton = `<span class="locked-badge">🔒 Locked (Complete Task ${i - 1} first)</span>`;
+                }
+
+                div.innerHTML = `
                 <div class="task-info">
                     <span class="task-num">Task ${i}</span>
                     <strong class="task-name-text">${taskTitle}</strong>
                 </div>
                 ${badgeOrButton}
             `;
-            taskList.appendChild(div);
-        }
-    }
-
-    async function submitTask(teamName, taskId, btnElement) {
-        // Enforce sequential check in submission logic
-        const match = taskId.match(/Task\s*(\d+)/i);
-        const taskNum = match ? parseInt(match[1]) : 1;
-        const teamCompleted = completedTasksPerTeam[teamName] || [];
-
-        if (teamCompleted.includes(taskId)) {
-            alert(`⚠️ ${taskId} has already been recorded!`);
-            return;
+                taskList.appendChild(div);
+            }
         }
 
-        if (taskNum > 1 && !teamCompleted.includes(`Task ${taskNum - 1}`)) {
-            alert(`⛔ Task ${taskNum - 1} must be completed before submitting ${taskId}!`);
-            return;
-        }
+        async function submitTask(teamName, taskId, btnElement) {
+            // Enforce sequential check in submission logic
+            const match = taskId.match(/Task\s*(\d+)/i);
+            const taskNum = match ? parseInt(match[1]) : 1;
+            const teamCompleted = completedTasksPerTeam[teamName] || [];
 
-        const taskTitle = TASK_TITLES[taskNum] || taskId;
-        const displayName = TEAM_NAMES[teamName] || teamName;
-        const displayLabel = displayName !== teamName ? `${teamName} (${displayName})` : teamName;
-
-        // Password protection for the final winning task (Task 8)
-        if (taskNum === 8) {
-            const enteredPasscode = prompt(`🔐 Task 8 is the FINAL WINNING TASK!\n\nOnly the organizer/admin can confirm the winning team.\nEnter Admin Password to unlock:`);
-            if (enteredPasscode === null) {
-                // Admin/Mentor pressed Cancel
+            if (teamCompleted.includes(taskId)) {
+                alert(`⚠️ ${taskId} has already been recorded!`);
                 return;
             }
-            if (enteredPasscode.trim() !== FINAL_TASK_PASSWORD) {
-                alert("⛔ Incorrect Admin Password! Final submission cancelled.");
+
+            if (taskNum > 1 && !teamCompleted.includes(`Task ${taskNum - 1}`)) {
+                alert(`⛔ Task ${taskNum - 1} must be completed before submitting ${taskId}!`);
                 return;
             }
-        }
 
-        const confirmMsg = (taskNum === 8)
-            ? `👑 CONFIRM FINAL WINNER:\n\nAre you sure you want to submit Task 8: "${taskTitle}" for ${displayLabel}?\n\nThis will declare ${displayLabel} as the WINNER of the Treasure Hunt!`
-            : `Are you sure you want to submit Task ${taskNum}: "${taskTitle}" for ${displayLabel}? This will record the exact timestamp!`;
+            const taskTitle = TASK_TITLES[taskNum] || taskId;
+            const displayName = TEAM_NAMES[teamName] || teamName;
+            const displayLabel = displayName !== teamName ? `${teamName} (${displayName})` : teamName;
 
-        if (!confirm(confirmMsg)) return;
-
-        // Disable button immediately to prevent double clicking
-        if (btnElement) {
-            btnElement.disabled = true;
-            btnElement.innerText = "Submitting...";
-        }
-
-        try {
-            // Build the form data for Google Forms
-            const formData = new URLSearchParams();
-            formData.append(TEAM_ENTRY_ID, teamName);
-            formData.append(TASK_ENTRY_ID, taskId);
-
-            // Use 'no-cors' mode so Google accepts the AJAX submission from any domain
-            await fetch(GOOGLE_FORM_ACTION_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: formData
-            });
-
-            showMessage(`✅ ${taskId} submitted successfully!`);
-            
-            // Optimistically update the UI so they don't double click
-            if (!completedTasksPerTeam[teamName]) {
-                completedTasksPerTeam[teamName] = [];
+            // Password protection for the final winning task (Task 8)
+            if (taskNum === 8) {
+                const enteredPasscode = prompt(`🔐 Task 8 is the FINAL WINNING TASK!\n\nOnly the organizer/admin can confirm the winning team.\nEnter Admin Password to unlock:`);
+                if (enteredPasscode === null) {
+                    // Admin/Mentor pressed Cancel
+                    return;
+                }
+                if (enteredPasscode.trim() !== FINAL_TASK_PASSWORD) {
+                    alert("⛔ Incorrect Admin Password! Final submission cancelled.");
+                    return;
+                }
             }
-            completedTasksPerTeam[teamName].push(taskId);
-            loadTeamData();
 
-            // Refetch true state quickly to sync
-            setTimeout(fetchState, 1500);
+            const confirmMsg = (taskNum === 8)
+                ? `👑 CONFIRM FINAL WINNER:\n\nAre you sure you want to submit Task 8: "${taskTitle}" for ${displayLabel}?\n\nThis will declare ${displayLabel} as the WINNER of the Treasure Hunt!`
+                : `Are you sure you want to submit Task ${taskNum}: "${taskTitle}" for ${displayLabel}? This will record the exact timestamp!`;
 
-        } catch (err) {
-            showMessage("Failed to submit. Check internet connection.", true);
+            if (!confirm(confirmMsg)) return;
+
+            // Disable button immediately to prevent double clicking
             if (btnElement) {
-                btnElement.disabled = false;
-                btnElement.innerText = `Complete ${taskId}`;
+                btnElement.disabled = true;
+                btnElement.innerText = "Submitting...";
+            }
+
+            try {
+                // Build the form data for Google Forms
+                const formData = new URLSearchParams();
+                formData.append(TEAM_ENTRY_ID, teamName);
+                formData.append(TASK_ENTRY_ID, taskId);
+
+                // Use 'no-cors' mode so Google accepts the AJAX submission from any domain
+                await fetch(GOOGLE_FORM_ACTION_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: formData
+                });
+
+                showMessage(`✅ ${taskId} submitted successfully!`);
+
+                // Optimistically update the UI so they don't double click
+                if (!completedTasksPerTeam[teamName]) {
+                    completedTasksPerTeam[teamName] = [];
+                }
+                completedTasksPerTeam[teamName].push(taskId);
+                loadTeamData();
+
+                // Refetch true state quickly to sync
+                setTimeout(fetchState, 1500);
+
+            } catch (err) {
+                showMessage("Failed to submit. Check internet connection.", true);
+                if (btnElement) {
+                    btnElement.disabled = false;
+                    btnElement.innerText = `Complete ${taskId}`;
+                }
             }
         }
-    }
 
-    function showMessage(msg, isError = false) {
-        const el = document.getElementById('status-msg');
-        el.textContent = msg;
-        el.className = isError ? 'error' : '';
-        setTimeout(() => { el.textContent = ''; }, 3000);
-    }
+        function showMessage(msg, isError = false) {
+            const el = document.getElementById('status-msg');
+            el.textContent = msg;
+            el.className = isError ? 'error' : '';
+            setTimeout(() => { el.textContent = ''; }, 3000);
+        }
 
-    // Load data on start
-    fetchState();
-    // Poll every 3 seconds for instant real-time sync
-    setInterval(fetchState, 3000);
-</script>
+        // Load data on start
+        fetchState();
+        // Poll every 3 seconds for instant real-time sync
+        setInterval(fetchState, 3000);
+    </script>
 
 </body>
+
 </html>
