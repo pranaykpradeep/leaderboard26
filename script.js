@@ -20,7 +20,7 @@ const TEAM_NAMES = {
     "Team 1": "Team 1",
     "Team 2": "Team 2",
     "Team 3": "Team 3",
-    "Team 4": "Team 4",
+    "Team 4": "CID Moosas",
     "Team 5": "Team 5",
     "Team 6": "Team 6",
     "Team 7": "Team 7",
