@@ -17,21 +17,21 @@ const REFRESH_INTERVAL = 3000; // 3 seconds for instant real-time updates
 
 // Team Mapping (Team ID -> Unique Name)
 const TEAM_NAMES = {
-    "Team 1": "Team 1",
+    "Team 1": "Quisito",
     "Team 2": "Team 2",
-    "Team 3": "Team 3",
+    "Team 3": "Secret Seekers",
     "Team 4": "CID Moosas",
-    "Team 5": "Team 5",
-    "Team 6": "Team 6",
+    "Team 5": "DRASHTA",
+    "Team 6": "Operation Treasure",
     "Team 7": "Team 7",
-    "Team 8": "Team 8",
+    "Team 8": "Cryptic squad",
     "Team 9": "Squad Zero",
     "Team 10": "Pirates Of Cheruthoni",
     "Team 11": "Cipher Squad",
     "Team 12": "Renegades",
     "Team 13": "Relic Hunters",
     "Team 14": "Mungal Vidhagthar",
-    "Team 15": "Team 15",
+    "Team 15": "Treasure Warriors",
     "Team 16": "Team 16",
     "Team 17": "Strawhats"
 };
