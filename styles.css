@@ -49,7 +49,8 @@ h1 {
 .leaderboard {
     background: rgba(0, 0, 0, 0.3);
     border-radius: 15px;
-    overflow: hidden;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
     margin-bottom: 30px;
 }
@@ -85,7 +86,8 @@ tr:hover {
     font-weight: bold;
     font-size: 1.2rem;
     text-align: center;
-    width: 80px;
+    width: 70px;
+    min-width: 45px;
 }
 
 .top-3 {
@@ -97,18 +99,20 @@ tr:hover {
     display: flex;
     align-items: center;
     gap: 15px;
+    min-width: 0;
 }
 
 .avatar {
-    width: 45px;
-    height: 45px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
     background: linear-gradient(135deg, #74ebd5, #9face6);
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
+    flex-shrink: 0;
 }
 
 .level {
@@ -129,6 +133,8 @@ tr:hover {
     font-weight: bold;
     color: gold;
     font-size: 1.2rem;
+    white-space: nowrap;
+    min-width: 75px;
 }
 
 .footer-bar {
@@ -193,32 +199,93 @@ tr:hover {
 }
 
 @media (max-width: 768px) {
+    body {
+        padding: 12px 8px;
+    }
+    
+    .container {
+        padding: 10px 4px;
+    }
+
     th, td {
-        padding: 15px 10px;
+        padding: 14px 10px;
     }
     
     .rank {
-        width: 50px;
+        width: 48px;
+        min-width: 40px;
+    }
+
+    .points {
+        min-width: 70px;
     }
 }
 
 @media (max-width: 480px) {
-    th, td {
-        padding: 12px 8px;
-        font-size: 0.9rem;
+    body {
+        padding: 8px 4px;
     }
-    
-    .avatar {
-        width: 35px;
-        height: 35px;
-        font-size: 1rem;
+
+    .container {
+        padding: 4px 2px;
     }
-    
+
+    header {
+        padding: 15px 10px;
+        margin-bottom: 16px;
+        border-radius: 12px;
+    }
+
     h1 {
-        font-size: 2.2rem;
+        font-size: 1.8rem;
+    }
+
+    .subtitle {
+        font-size: 0.95rem;
+    }
+
+    .leaderboard {
+        border-radius: 12px;
+        margin-bottom: 20px;
+    }
+
+    th, td {
+        padding: 12px 6px;
+        font-size: 0.88rem;
     }
     
-    .level-number, .points {
-        font-size: 1.1rem;
+    .rank {
+        width: 36px;
+        min-width: 32px;
+        font-size: 0.95rem;
+        padding-left: 6px;
+        padding-right: 4px;
+    }
+
+    .name {
+        gap: 8px;
+        font-size: 0.92rem;
+        padding-left: 4px;
+        padding-right: 4px;
+    }
+
+    .avatar {
+        width: 30px;
+        height: 30px;
+        font-size: 0.8rem;
+    }
+    
+    .points {
+        font-size: 1.05rem;
+        min-width: 65px;
+        white-space: nowrap;
+        padding-right: 10px;
+        padding-left: 4px;
+    }
+
+    .footer-bar {
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
     }
 }
