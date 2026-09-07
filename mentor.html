@@ -243,6 +243,9 @@
     const TEAM_ENTRY_ID = 'entry.2016818712';
     const TASK_ENTRY_ID = 'entry.320462121';
 
+    // Master Admin Password required to submit the final task (Task 8)
+    const FINAL_TASK_PASSWORD = "1234"; 
+
     // Team Mapping (Team ID -> Unique Name)
     const TEAM_NAMES = {
         "Team 1": "Quisito",
@@ -431,7 +434,8 @@
             } else if (isPreviousDone) {
                 // This is the next unlocked task available to complete
                 div.className = 'task-item active';
-                badgeOrButton = `<button onclick="submitTask('${teamName}', '${taskId}', this)">Complete</button>`;
+                let btnLabel = (i === 8) ? `🔐 Complete (Admin Locked)` : `Complete`;
+                badgeOrButton = `<button onclick="submitTask('${teamName}', '${taskId}', this)">${btnLabel}</button>`;
             } else {
                 // Locked until previous task is done
                 div.className = 'task-item locked';
@@ -469,7 +473,24 @@
         const displayName = TEAM_NAMES[teamName] || teamName;
         const displayLabel = displayName !== teamName ? `${teamName} (${displayName})` : teamName;
 
-        if (!confirm(`Are you sure you want to submit Task ${taskNum}: "${taskTitle}" for ${displayLabel}? This will record the exact timestamp!`)) return;
+        // Password protection for the final winning task (Task 8)
+        if (taskNum === 8) {
+            const enteredPasscode = prompt(`🔐 Task 8 is the FINAL WINNING TASK!\n\nOnly the organizer/admin can confirm the winning team.\nEnter Admin Password to unlock:`);
+            if (enteredPasscode === null) {
+                // Admin/Mentor pressed Cancel
+                return;
+            }
+            if (enteredPasscode.trim() !== FINAL_TASK_PASSWORD) {
+                alert("⛔ Incorrect Admin Password! Final submission cancelled.");
+                return;
+            }
+        }
+
+        const confirmMsg = (taskNum === 8)
+            ? `👑 CONFIRM FINAL WINNER:\n\nAre you sure you want to submit Task 8: "${taskTitle}" for ${displayLabel}?\n\nThis will declare ${displayLabel} as the WINNER of the Treasure Hunt!`
+            : `Are you sure you want to submit Task ${taskNum}: "${taskTitle}" for ${displayLabel}? This will record the exact timestamp!`;
+
+        if (!confirm(confirmMsg)) return;
 
         // Disable button immediately to prevent double clicking
         if (btnElement) {
