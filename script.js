@@ -34,7 +34,7 @@ const TEAM_NAMES = {
     "Team 15": "Treasure Warriors",
     "Team 16": "Celestial dragons",
     "Team 17": "Strawhats",
-    "Team 18": "Team 18"
+    "Team 18": "Uncharted 😎"
 };
 
 function resolveTeamId(rawTeam) {
