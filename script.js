@@ -30,82 +30,78 @@ function parseCSVData(csvText) {
 }
 
 function processData(rows) {
-    // Expected headers: "Timestamp", "team name", "task name"
-    // Find the actual keys since Google Forms might capitalize them slightly differently
-    if (rows.length === 0) {
-        renderLeaderboard([]);
-        return;
-    }
+    const TOTAL_TEAMS = 17;
+    const validTeams = Array.from({length: TOTAL_TEAMS}, (_, i) => `Team ${i + 1}`);
 
-    const headers = Object.keys(rows[0]);
-    const timeCol = headers.find(h => h.toLowerCase().includes('timestamp')) || headers[0];
-    const teamCol = headers.find(h => h.toLowerCase().includes('team')) || headers[1];
-    const taskCol = headers.find(h => h.toLowerCase().includes('task')) || headers[2];
-
-    // 1. Organize submissions chronologically
-    rows.sort((a, b) => new Date(a[timeCol]) - new Date(b[timeCol]));
-
-    // 2. Track who solved what and when
-    // { "Task 1": ["NOVA", "Team 2"], "Task 2": ["NOVA"] }
+    // Pre-initialize Team 1 to Team 17 with 0 points
     let taskCompletions = {}; 
-    let teamPoints = {}; // { "NOVA": 100 }
-    let teamHasWon = {}; // { "NOVA": false }
+    let teamPoints = {};
+    let teamHasWon = {};
 
-    rows.forEach(row => {
-        let team = row[teamCol]?.toString().trim();
-        let task = row[taskCol]?.toString().trim();
-        
-        if (!team || !task) return;
+    validTeams.forEach(t => {
+        teamPoints[t] = 0;
+        teamHasWon[t] = false;
+    });
 
-        // Initialize team if not exists
-        if (typeof teamPoints[team] === 'undefined') {
-            teamPoints[team] = 0;
-            teamHasWon[team] = false;
-        }
+    if (rows && rows.length > 0) {
+        const headers = Object.keys(rows[0]);
+        const timeCol = headers.find(h => h.toLowerCase().includes('timestamp')) || headers[0];
+        const teamCol = headers.find(h => h.toLowerCase().includes('team')) || headers[1];
+        const taskCol = headers.find(h => h.toLowerCase().includes('task')) || headers[2];
 
-        // Initialize task array if not exists
-        if (!taskCompletions[task]) {
-            taskCompletions[task] = [];
-        }
+        // 1. Organize submissions chronologically
+        rows.sort((a, b) => new Date(a[timeCol]) - new Date(b[timeCol]));
 
-        // If this team hasn't already received points for this task
-        if (!taskCompletions[task].includes(team)) {
-            taskCompletions[task].push(team);
+        // 2. Track who solved what and when
+        rows.forEach(row => {
+            let rawTeam = row[teamCol]?.toString().trim();
+            let task = row[taskCol]?.toString().trim();
             
-            // Their rank is how many people solved it before them + 1
-            let rank = taskCompletions[task].length; 
-            
-            if (task.toLowerCase() === FINAL_TASK_NAME.toLowerCase()) {
-                if (rank === 1) {
-                    teamPoints[team] += FINAL_TASK_BONUS;
-                    teamHasWon[team] = true;
+            if (!rawTeam || !task) return;
+
+            // Match to valid team (e.g. "team 1" -> "Team 1")
+            let team = validTeams.find(vt => vt.toLowerCase() === rawTeam.toLowerCase());
+            if (!team) return; // Ignore any other team names
+
+            // Initialize task array if not exists
+            if (!taskCompletions[task]) {
+                taskCompletions[task] = [];
+            }
+
+            // If this team hasn't already received points for this task
+            if (!taskCompletions[task].includes(team)) {
+                taskCompletions[task].push(team);
+                
+                // Their rank is how many people solved it before them + 1
+                let rank = taskCompletions[task].length; 
+                
+                if (task.toLowerCase() === FINAL_TASK_NAME.toLowerCase()) {
+                    if (rank === 1) {
+                        teamPoints[team] += FINAL_TASK_BONUS;
+                        teamHasWon[team] = true;
+                    } else {
+                        teamPoints[team] += Math.max(MIN_POINTS_PER_TASK, POINTS_PER_TASK - ((rank - 1) * 10));
+                    }
                 } else {
                     teamPoints[team] += Math.max(MIN_POINTS_PER_TASK, POINTS_PER_TASK - ((rank - 1) * 10));
                 }
-            } else {
-                teamPoints[team] += Math.max(MIN_POINTS_PER_TASK, POINTS_PER_TASK - ((rank - 1) * 10));
             }
-        }
-    });
+        });
+    }
 
     // 3. Format for rendering
-    let teamsList = Object.keys(teamPoints).map(teamName => {
-        // Generate avatar initials (first two letters)
+    let teamsList = validTeams.map(teamName => {
         let avatar = teamName.replace('Team ', 'T');
-        if (teamName.length > 2 && avatar === teamName) {
-             avatar = teamName.substring(0, 2).toUpperCase();
-        }
-
         return {
             name: teamName,
-            points: teamPoints[teamName],
+            points: teamPoints[teamName] || 0,
             avatar: avatar,
-            hasWon: teamHasWon[teamName]
+            hasWon: teamHasWon[teamName] || false
         };
     });
 
-    // Sort teams: Highest points first.
-    teamsList.sort((a, b) => b.points - a.points);
+    // Sort teams: Highest points first. If tied, sort by team number.
+    teamsList.sort((a, b) => (b.points - a.points) || a.name.localeCompare(b.name, undefined, { numeric: true }));
 
     renderLeaderboard(teamsList);
 }
