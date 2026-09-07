@@ -66,6 +66,34 @@ function getAvatar(displayName, teamId) {
     return displayName.substring(0, 2).toUpperCase();
 }
 
+const TASK_TITLES = {
+    1: "reached Website",
+    2: "reached Puzzle",
+    3: "reached Morse code",
+    4: "reached Tele bot",
+    5: "reached Library of babel",
+    6: "reached Spectrogram",
+    7: "reached Credential insta handle",
+    8: "reached Telegram bot"
+};
+
+function resolveTaskId(rawTask) {
+    if (!rawTask) return null;
+    let clean = rawTask.trim().toLowerCase();
+
+    for (let i = 1; i <= 8; i++) {
+        if (clean === `task ${i}` || clean.startsWith(`task ${i} `) || clean.startsWith(`task ${i}-`) || clean.startsWith(`task ${i}:`)) {
+            return `Task ${i}`;
+        }
+    }
+    for (let [num, title] of Object.entries(TASK_TITLES)) {
+        if (clean.includes(title.toLowerCase()) || title.toLowerCase().includes(clean)) {
+            return `Task ${num}`;
+        }
+    }
+    return rawTask;
+}
+
 // ==========================================
 // APP LOGIC
 // ==========================================
@@ -106,13 +134,14 @@ function processData(rows) {
         // 2. Track who solved what and when
         rows.forEach(row => {
             let rawTeam = row[teamCol]?.toString().trim();
-            let task = row[taskCol]?.toString().trim();
+            let rawTask = row[taskCol]?.toString().trim();
             
-            if (!rawTeam || !task) return;
+            if (!rawTeam || !rawTask) return;
 
             // Resolve to canonical Team ID (e.g. "Squad Zero" -> "Team 9", "Team 9" -> "Team 9")
             let team = resolveTeamId(rawTeam);
-            if (!team) return; // Ignore any unrecognized names
+            let task = resolveTaskId(rawTask);
+            if (!team || !task) return; // Ignore any unrecognized names
 
             // Initialize task array if not exists
             if (!taskCompletions[task]) {

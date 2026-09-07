@@ -91,6 +91,31 @@
             padding: 8px 15px;
             font-size: 14px;
         }
+        .task-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            text-align: left;
+        }
+        .task-num {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #666;
+            letter-spacing: 0.5px;
+        }
+        .task-name-text {
+            font-size: 14.5px;
+            color: #222;
+        }
+        .task-item.completed .task-num,
+        .task-item.completed .task-name-text {
+            color: #155724;
+        }
+        .task-item.locked .task-num,
+        .task-item.locked .task-name-text {
+            color: #777;
+        }
         .header-row {
             display: flex;
             justify-content: space-between;
@@ -309,6 +334,35 @@
         });
     }
 
+    // Task Titles Mapping for Mentor Portal
+    const TASK_TITLES = {
+        1: "reached Website",
+        2: "reached Puzzle",
+        3: "reached Morse code",
+        4: "reached Tele bot",
+        5: "reached Library of babel",
+        6: "reached Spectrogram",
+        7: "reached Credential insta handle",
+        8: "reached Telegram bot"
+    };
+
+    function resolveTaskId(rawTask) {
+        if (!rawTask) return null;
+        let clean = rawTask.trim().toLowerCase();
+
+        for (let i = 1; i <= 8; i++) {
+            if (clean === `task ${i}` || clean.startsWith(`task ${i} `) || clean.startsWith(`task ${i}-`) || clean.startsWith(`task ${i}:`)) {
+                return `Task ${i}`;
+            }
+        }
+        for (let [num, title] of Object.entries(TASK_TITLES)) {
+            if (clean.includes(title.toLowerCase()) || title.toLowerCase().includes(clean)) {
+                return `Task ${num}`;
+            }
+        }
+        return rawTask;
+    }
+
     function processData(rows) {
         if (!rows || rows.length === 0) {
             completedTasksPerTeam = {};
@@ -323,17 +377,18 @@
         completedTasksPerTeam = {};
         rows.forEach(row => {
             let rawTeam = row[teamCol]?.toString().trim();
-            let task = row[taskCol]?.toString().trim();
-            if (!rawTeam || !task) return;
+            let rawTask = row[taskCol]?.toString().trim();
+            if (!rawTeam || !rawTask) return;
 
             let teamId = resolveTeamId(rawTeam);
-            if (!teamId) return;
+            let taskId = resolveTaskId(rawTask);
+            if (!teamId || !taskId) return;
 
             if (!completedTasksPerTeam[teamId]) {
                 completedTasksPerTeam[teamId] = [];
             }
-            if (!completedTasksPerTeam[teamId].includes(task)) {
-                completedTasksPerTeam[teamId].push(task);
+            if (!completedTasksPerTeam[teamId].includes(taskId)) {
+                completedTasksPerTeam[teamId].push(taskId);
             }
         });
 
@@ -356,9 +411,10 @@
         container.style.display = 'block';
         taskList.innerHTML = '';
 
-        // Render 8 tasks in strict sequential order
+        // Render 8 tasks with custom descriptive names in strict sequential order
         for (let i = 1; i <= 8; i++) {
             let taskId = `Task ${i}`;
+            let taskTitle = TASK_TITLES[i] || taskId;
             let isDone = teamCompleted.includes(taskId);
             
             // Check if previous task is completed
@@ -373,7 +429,7 @@
             } else if (isPreviousDone) {
                 // This is the next unlocked task available to complete
                 div.className = 'task-item active';
-                badgeOrButton = `<button onclick="submitTask('${teamName}', '${taskId}', this)">Complete ${taskId}</button>`;
+                badgeOrButton = `<button onclick="submitTask('${teamName}', '${taskId}', this)">Complete</button>`;
             } else {
                 // Locked until previous task is done
                 div.className = 'task-item locked';
@@ -381,7 +437,10 @@
             }
 
             div.innerHTML = `
-                <span><strong>${taskId}</strong></span>
+                <div class="task-info">
+                    <span class="task-num">Task ${i}</span>
+                    <strong class="task-name-text">${taskTitle}</strong>
+                </div>
                 ${badgeOrButton}
             `;
             taskList.appendChild(div);
@@ -404,10 +463,11 @@
             return;
         }
 
+        const taskTitle = TASK_TITLES[taskNum] || taskId;
         const displayName = TEAM_NAMES[teamName] || teamName;
         const displayLabel = displayName !== teamName ? `${teamName} (${displayName})` : teamName;
 
-        if (!confirm(`Are you sure you want to submit ${taskId} for ${displayLabel}? This will record the exact timestamp!`)) return;
+        if (!confirm(`Are you sure you want to submit Task ${taskNum}: "${taskTitle}" for ${displayLabel}? This will record the exact timestamp!`)) return;
 
         // Disable button immediately to prevent double clicking
         if (btnElement) {
