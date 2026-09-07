@@ -12,8 +12,59 @@ const MIN_POINTS_PER_TASK = 60; // Minimum points a team can get for a task
 const FINAL_TASK_BONUS = 10000;
 
 // The exact string that represents the final task in the form
-const FINAL_TASK_NAME = "Task 10"; 
+const FINAL_TASK_NAME = "Task 8"; 
 const REFRESH_INTERVAL = 3000; // 3 seconds for instant real-time updates
+
+// Team Mapping (Team ID -> Unique Name)
+const TEAM_NAMES = {
+    "Team 1": "Team 1",
+    "Team 2": "Team 2",
+    "Team 3": "Team 3",
+    "Team 4": "Team 4",
+    "Team 5": "Team 5",
+    "Team 6": "Team 6",
+    "Team 7": "Team 7",
+    "Team 8": "Team 8",
+    "Team 9": "Squad Zero",
+    "Team 10": "Pirates Of Cheruthoni",
+    "Team 11": "Cipher Squad",
+    "Team 12": "Renegades",
+    "Team 13": "Relic Hunters",
+    "Team 14": "Mungal Vidhagthar",
+    "Team 15": "Team 15",
+    "Team 16": "Team 16",
+    "Team 17": "Strawhats"
+};
+
+function resolveTeamId(rawTeam) {
+    if (!rawTeam) return null;
+    let clean = rawTeam.trim().toLowerCase();
+
+    for (let id of Object.keys(TEAM_NAMES)) {
+        if (id.toLowerCase() === clean) return id;
+    }
+    for (let [id, name] of Object.entries(TEAM_NAMES)) {
+        if (name.toLowerCase() === clean) return id;
+    }
+    for (let id of Object.keys(TEAM_NAMES)) {
+        if (clean.includes(id.toLowerCase())) return id;
+    }
+    for (let [id, name] of Object.entries(TEAM_NAMES)) {
+        if (name !== id && clean.includes(name.toLowerCase())) return id;
+    }
+    return null;
+}
+
+function getAvatar(displayName, teamId) {
+    if (displayName === teamId) {
+        return teamId.replace('Team ', 'T');
+    }
+    let words = displayName.trim().split(/\s+/);
+    if (words.length >= 2) {
+        return (words[0][0] + words[1][0]).toUpperCase();
+    }
+    return displayName.substring(0, 2).toUpperCase();
+}
 
 // ==========================================
 // APP LOGIC
@@ -31,14 +82,14 @@ function parseCSVData(csvText) {
 
 function processData(rows) {
     const TOTAL_TEAMS = 17;
-    const validTeams = Array.from({length: TOTAL_TEAMS}, (_, i) => `Team ${i + 1}`);
+    const validTeamIds = Array.from({length: TOTAL_TEAMS}, (_, i) => `Team ${i + 1}`);
 
     // Pre-initialize Team 1 to Team 17 with 0 points
     let taskCompletions = {}; 
     let teamPoints = {};
     let teamHasWon = {};
 
-    validTeams.forEach(t => {
+    validTeamIds.forEach(t => {
         teamPoints[t] = 0;
         teamHasWon[t] = false;
     });
@@ -59,9 +110,9 @@ function processData(rows) {
             
             if (!rawTeam || !task) return;
 
-            // Match to valid team (e.g. "team 1" -> "Team 1")
-            let team = validTeams.find(vt => vt.toLowerCase() === rawTeam.toLowerCase());
-            if (!team) return; // Ignore any other team names
+            // Resolve to canonical Team ID (e.g. "Squad Zero" -> "Team 9", "Team 9" -> "Team 9")
+            let team = resolveTeamId(rawTeam);
+            if (!team) return; // Ignore any unrecognized names
 
             // Initialize task array if not exists
             if (!taskCompletions[task]) {
@@ -90,20 +141,23 @@ function processData(rows) {
     }
 
     // 3. Format for rendering - Only display teams that have started (completed at least one task / points > 0)
-    let activeTeams = validTeams.filter(teamName => (teamPoints[teamName] || 0) > 0);
+    let activeTeams = validTeamIds.filter(teamId => (teamPoints[teamId] || 0) > 0);
 
-    let teamsList = activeTeams.map(teamName => {
-        let avatar = teamName.replace('Team ', 'T');
+    let teamsList = activeTeams.map(teamId => {
+        let displayName = TEAM_NAMES[teamId] || teamId;
+        let hasCustomName = displayName !== teamId;
         return {
-            name: teamName,
-            points: teamPoints[teamName] || 0,
-            avatar: avatar,
-            hasWon: teamHasWon[teamName] || false
+            id: teamId,
+            name: displayName,
+            hasCustomName: hasCustomName,
+            points: teamPoints[teamId] || 0,
+            avatar: getAvatar(displayName, teamId),
+            hasWon: teamHasWon[teamId] || false
         };
     });
 
     // Sort teams: Highest points first. If tied, sort by team number.
-    teamsList.sort((a, b) => (b.points - a.points) || a.name.localeCompare(b.name, undefined, { numeric: true }));
+    teamsList.sort((a, b) => (b.points - a.points) || a.id.localeCompare(b.id, undefined, { numeric: true }));
 
     renderLeaderboard(teamsList);
 }
@@ -133,12 +187,15 @@ function renderLeaderboard(teams) {
         }
 
         let displayRank = team.hasWon ? '👑' : rank;
+        let nameHtml = team.hasCustomName 
+            ? `<div class="name-container"><span class="team-title">${team.name}</span><span class="team-badge">${team.id}</span></div>`
+            : `<span class="team-title">${team.name}</span>`;
 
         row.innerHTML = `
             <td class="rank">${displayRank}</td>
             <td class="name">
                 <div class="avatar">${team.avatar}</div>
-                ${team.name}
+                ${nameHtml}
             </td>
             <td class="points">${team.points}</td>
         `;

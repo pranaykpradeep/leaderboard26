@@ -102,6 +102,28 @@ tr:hover {
     min-width: 0;
 }
 
+.name-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.team-title {
+    font-weight: 600;
+}
+
+.team-badge {
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    padding: 2px 7px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
 .avatar {
     width: 42px;
     height: 42px;

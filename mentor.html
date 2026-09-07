@@ -184,22 +184,22 @@
             <option value="Team 6">Team 6</option>
             <option value="Team 7">Team 7</option>
             <option value="Team 8">Team 8</option>
-            <option value="Team 9">Team 9</option>
-            <option value="Team 10">Team 10</option>
-            <option value="Team 11">Team 11</option>
-            <option value="Team 12">Team 12</option>
-            <option value="Team 13">Team 13</option>
-            <option value="Team 14">Team 14</option>
+            <option value="Team 9">Team 9 - Squad Zero</option>
+            <option value="Team 10">Team 10 - Pirates Of Cheruthoni</option>
+            <option value="Team 11">Team 11 - Cipher Squad</option>
+            <option value="Team 12">Team 12 - Renegades</option>
+            <option value="Team 13">Team 13 - Relic Hunters</option>
+            <option value="Team 14">Team 14 - Mungal Vidhagthar</option>
             <option value="Team 15">Team 15</option>
             <option value="Team 16">Team 16</option>
-            <option value="Team 17">Team 17</option>
+            <option value="Team 17">Team 17 - Strawhats</option>
         </select>
     </div>
 
     <div id="status-msg"></div>
 
     <div id="tasks-container" class="task-list" style="display: none;">
-        <h3>Tasks</h3>
+        <h3>Tasks (8 Total)</h3>
         <p style="margin-bottom: 15px; font-size: 14px; color: #666;">Click "Complete" when your team finishes a task. The system will record the exact time securely to the master sheet.</p>
         <div id="task-list"></div>
     </div>
@@ -217,7 +217,47 @@
     const TEAM_ENTRY_ID = 'entry.2016818712';
     const TASK_ENTRY_ID = 'entry.320462121';
 
-    let completedTasksPerTeam = {}; // { "NOVA": ["Task 1", "Task 2"] }
+    // Team Mapping (Team ID -> Unique Name)
+    const TEAM_NAMES = {
+        "Team 1": "Team 1",
+        "Team 2": "Team 2",
+        "Team 3": "Team 3",
+        "Team 4": "Team 4",
+        "Team 5": "Team 5",
+        "Team 6": "Team 6",
+        "Team 7": "Team 7",
+        "Team 8": "Team 8",
+        "Team 9": "Squad Zero",
+        "Team 10": "Pirates Of Cheruthoni",
+        "Team 11": "Cipher Squad",
+        "Team 12": "Renegades",
+        "Team 13": "Relic Hunters",
+        "Team 14": "Mungal Vidhagthar",
+        "Team 15": "Team 15",
+        "Team 16": "Team 16",
+        "Team 17": "Strawhats"
+    };
+
+    function resolveTeamId(rawTeam) {
+        if (!rawTeam) return null;
+        let clean = rawTeam.trim().toLowerCase();
+
+        for (let id of Object.keys(TEAM_NAMES)) {
+            if (id.toLowerCase() === clean) return id;
+        }
+        for (let [id, name] of Object.entries(TEAM_NAMES)) {
+            if (name.toLowerCase() === clean) return id;
+        }
+        for (let id of Object.keys(TEAM_NAMES)) {
+            if (clean.includes(id.toLowerCase())) return id;
+        }
+        for (let [id, name] of Object.entries(TEAM_NAMES)) {
+            if (name !== id && clean.includes(name.toLowerCase())) return id;
+        }
+        return null;
+    }
+
+    let completedTasksPerTeam = {}; // { "Team 1": ["Task 1", "Task 2"] }
 
     // Fetch real-time data from Google Apps Script (with CSV fallback)
     function fetchState() {
@@ -282,15 +322,18 @@
 
         completedTasksPerTeam = {};
         rows.forEach(row => {
-            let team = row[teamCol]?.toString().trim();
+            let rawTeam = row[teamCol]?.toString().trim();
             let task = row[taskCol]?.toString().trim();
-            if (!team || !task) return;
+            if (!rawTeam || !task) return;
 
-            if (!completedTasksPerTeam[team]) {
-                completedTasksPerTeam[team] = [];
+            let teamId = resolveTeamId(rawTeam);
+            if (!teamId) return;
+
+            if (!completedTasksPerTeam[teamId]) {
+                completedTasksPerTeam[teamId] = [];
             }
-            if (!completedTasksPerTeam[team].includes(task)) {
-                completedTasksPerTeam[team].push(task);
+            if (!completedTasksPerTeam[teamId].includes(task)) {
+                completedTasksPerTeam[teamId].push(task);
             }
         });
 
@@ -313,8 +356,8 @@
         container.style.display = 'block';
         taskList.innerHTML = '';
 
-        // Render 10 tasks in strict sequential order
-        for (let i = 1; i <= 10; i++) {
+        // Render 8 tasks in strict sequential order
+        for (let i = 1; i <= 8; i++) {
             let taskId = `Task ${i}`;
             let isDone = teamCompleted.includes(taskId);
             
@@ -361,7 +404,10 @@
             return;
         }
 
-        if (!confirm(`Are you sure you want to submit ${taskId} for ${teamName}? This will record the exact timestamp!`)) return;
+        const displayName = TEAM_NAMES[teamName] || teamName;
+        const displayLabel = displayName !== teamName ? `${teamName} (${displayName})` : teamName;
+
+        if (!confirm(`Are you sure you want to submit ${taskId} for ${displayLabel}? This will record the exact timestamp!`)) return;
 
         // Disable button immediately to prevent double clicking
         if (btnElement) {
